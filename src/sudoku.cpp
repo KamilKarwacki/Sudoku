@@ -59,14 +59,16 @@ bool Sudoku::operator==(Sudoku other)
 }
 
 Sudoku& Sudoku::operator=(const Sudoku& other) 
-{
-	Sudoku result;
+{	
+	
+	if(&other == this)
+		return *this;
 	for (int i = 0; i < 9; i++) {
 		for (int j = 0; j < 9; j++) {
-			result.m_field[i][j] = other.m_field[i][j];
+			this->m_field[i][j] = other.m_field[i][j];
 		}
 	}
-	return result;
+	return *this;
 }
 
 void Sudoku::Update() 
@@ -123,25 +125,25 @@ void PossibilityMap::display() const
 
 //--------------------------------------- Functions --------------------------------
 
-std::vector<int> RowCheck(int i, int j, const Sudoku& sudoku)
+std::vector<int> RowCheck( int row, const Sudoku& sudoku)
 {
 	//@brief returns a vector of all numbers already in row
 	std::vector<int> inRow ;
-	for (int k = 0; k < 9; k++) {
-		if (sudoku.at(i, k) != 0) {
-			inRow.push_back(sudoku.at(i, k));
+	for (int col = 0; col < 9; col++) {
+		if (sudoku.at(row, col) != 0) {
+			inRow.push_back(sudoku.at(row, col));
 		}
 	}
 	return inRow;
 }
 
-std::vector<int> ColumnCheck(int i, int j, const Sudoku& sudoku)
+std::vector<int> ColumnCheck(int col, const Sudoku& sudoku)
 {
 	//@brief returns a vector of all numbers already in Column
 	std::vector<int> inColumn;
-	for (int k = 0; k < 9; k++) {
-		if (sudoku.at(k, j) != 0) {
-			inColumn.push_back(sudoku.at(k, j));
+	for (int row = 0; row < 9; row++) {
+		if (sudoku.at(row, col) != 0) {
+			inColumn.push_back(sudoku.at(row, col));
 		}
 	}
 	return inColumn;
@@ -159,21 +161,21 @@ std::vector<int> SubfieldCheck(int i, int j, const Sudoku& sudoku)
 	return result;
 }
 
-std::vector<int> PossibleNumbers(int i, int j, const Sudoku& sudoku)
+std::vector<int> PossibleNumbers(int row, int col, const Sudoku& sudoku)
 {
 	//@brief writes all possible numbers in one vector
-	std::vector<int> notPossible1 = ColumnCheck(i, j, sudoku);
-	std::vector<int> notPossible2 = RowCheck(i, j, sudoku);
-	std::vector<int> notPossible3 = SubfieldCheck(i, j, sudoku);
+	std::vector<int> notPossible1 = ColumnCheck(col, sudoku);
+	std::vector<int> notPossible2 = RowCheck(row, sudoku);
+	std::vector<int> notPossible3 = SubfieldCheck(row, col, sudoku);
 
 	std::vector<int> Possible = { 1,2,3,4,5,6,7,8,9 };
-	for (int k = 0; k < notPossible1.size(); k++) {
+	for (size_t k = 0; k < notPossible1.size(); k++) {
 		Possible[notPossible1[k] - 1] = 0;
 	}
-	for (int k = 0; k < notPossible2.size(); k++) {
+	for (size_t k = 0; k < notPossible2.size(); k++) {
 		Possible[notPossible2[k] - 1] = 0;
 	}
-	for (int k = 0; k < notPossible3.size(); k++) {
+	for (size_t k = 0; k < notPossible3.size(); k++) {
 		Possible[notPossible3[k] - 1] = 0;
 	}
 
@@ -323,7 +325,7 @@ void Solve(Sudoku& sudoku)
 
 std::vector<int> singleInVec(const std::vector<int>& hashVec) {
 	std::vector<int> result; 
-	for (int i = 0; i < hashVec.size(); i++) {
+	for (size_t i = 0; i < hashVec.size(); i++) {
 		if (hashVec.at(i) == 1)
 			result.push_back(i+1);
 	}
@@ -332,6 +334,7 @@ std::vector<int> singleInVec(const std::vector<int>& hashVec) {
 
 int Theta(int i, int j) 
 {
+	// function mapping from i and j to subfield number
 	if (i < 3)
 		return (int)std::floor(j / 3);
 	if (i >= 3 && i < 6)
@@ -342,7 +345,7 @@ int Theta(int i, int j)
 
 std::vector<std::pair<int,int>> InverseTheta(int fieldNum)
 {
-
+	// function returning all i and j pairs that correspond to subfield number
 	std::vector <std::pair<int, int>> result;
 	for (int i = 0; i < 9; i++) {
 		for (int j = 0; j < 9; j++) {

@@ -41,8 +41,8 @@ struct PossibilityMap {
 	void display() const;
 };
 
-std::vector<int> RowCheck(int i, int j, const Sudoku& sudoku);
-std::vector<int> ColumnCheck(int i, int j, const Sudoku& sudoku);
+std::vector<int> RowCheck(int row, const Sudoku& sudoku);
+std::vector<int> ColumnCheck(int col, const Sudoku& sudoku);
 std::vector<int> SubfieldCheck(int i, int j, const Sudoku& sudoku);
 std::vector<int> PossibleNumbers(int i, int j, const Sudoku& sudoku);
 
